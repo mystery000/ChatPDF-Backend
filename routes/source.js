@@ -3,9 +3,9 @@ const router = express.Router();
 const multer = require("multer");
 const config = require("../config");
 const axios = require("axios");
+const User = require("../models/user");
 const fs = require("fs");
 const FormData = require("form-data");
-
 const upload = multer({ dest: "public/files" });
 
 router.post("/add-file", upload.single("file"), (req, res) => {
@@ -51,9 +51,29 @@ router.post("/delete", (req, res) => {
         });
 });
 
+// Get list of uploaded documents of current user
 router.get("/get", (req, res) => {
     const user = req.user;
     res.status(200).json({ data: user.sources });
+});
+
+router.put("/update", async (req, res) => {
+    const user = req.user;
+    const payload = req.body;
+
+    try {
+        await User.updateOne(
+            { _id: user._id, "sources.sourceId": payload.sourceId },
+            {
+                $set: {
+                    "sources.$.name": payload.name,
+                },
+            }
+        );
+        res.status(200).json({ data: "udpated" });
+    } catch (error) {
+        res.status(400).json({ data: "failed to retrieve" });
+    }
 });
 
 module.exports = router;
