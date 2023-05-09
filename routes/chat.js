@@ -18,7 +18,6 @@ router.post("/message", (req, res) => {
             res.status(200).json({ data: response.data.content });
         })
         .catch((err) => {
-            console.log("Bad Request");
             res.status(400).json({ data: "Bad Request" });
         });
 });
