@@ -17,7 +17,7 @@ app.use(cors({ origin: "*" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(passport.initialize());
-
+app.use(express.static(`${__dirname}/public`));
 app.get("/", (req, res) => {
     res.json({
         success: true,
