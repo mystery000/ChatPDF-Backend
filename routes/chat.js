@@ -12,11 +12,9 @@ const options = {
 
 router.post("/message", (req, res) => {
     const data = req.body;
-    console.log(data);
     axios
         .post(`${config.API_URL}chats/message`, data, options)
         .then((response) => {
-            console.log(response);
             res.status(200).json({ data: response.data.content });
         })
         .catch((err) => {

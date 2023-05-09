@@ -28,7 +28,6 @@ router.post("/add-file", upload.single("file"), (req, res) => {
             });
         })
         .catch((err) => {
-            console.log("Bad Request");
             res.status(400).json({ data: "Bad Request" });
         });
 });
@@ -48,7 +47,6 @@ router.post("/delete", (req, res) => {
             res.status(200).json({ data: response.data });
         })
         .catch((err) => {
-            console.log("Bad Request.");
             res.status(400).json({ data: "Bad Request" });
         });
 });
