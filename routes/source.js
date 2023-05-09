@@ -51,4 +51,9 @@ router.post("/delete", (req, res) => {
         });
 });
 
+router.get("/get", (req, res) => {
+    const user = req.user;
+    res.status(200).json({ data: user.sources });
+});
+
 module.exports = router;
