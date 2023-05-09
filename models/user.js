@@ -17,9 +17,12 @@ const UserSchema = new Schema(
 
         avatar: String,
 
-        sources: {
-            type: [String],
-        },
+        sources: [
+            {
+                sourceId: String,
+                name: String,
+            },
+        ],
     },
     {
         timestamps: true,
