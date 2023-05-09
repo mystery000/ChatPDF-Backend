@@ -4,8 +4,6 @@ require("../config/passport");
 const router = express.Router();
 
 const authRouter = require("./auth");
-const dataRouter = require("./data");
-
 const chatRouter = require("./chat");
 const sourceRouter = require("./source");
 
@@ -20,8 +18,7 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", authRouter);
-router.use("/data", dataRouter);
-router.use("/sources", sourceRouter);
-router.use("/chats", chatRouter);
+router.use("/sources", jwtAuth, sourceRouter);
+router.use("/chats", jwtAuth, chatRouter);
 
 module.exports = router;
