@@ -17,6 +17,6 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", authRouter);
-router.use("/document", dataRouter);
+router.use("/data", dataRouter);
 
 module.exports = router;
