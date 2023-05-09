@@ -6,6 +6,7 @@ const router = express.Router();
 const authRouter = require("./auth");
 const chatRouter = require("./chat");
 const sourceRouter = require("./source");
+const userRouter = require("./user");
 
 const authMiddleware = require("../middlewares/auth");
 
@@ -20,5 +21,6 @@ router.get("/", (req, res) => {
 router.use("/auth", authRouter);
 router.use("/sources", jwtAuth, sourceRouter);
 router.use("/chats", jwtAuth, chatRouter);
+router.use("/users", jwtAuth, userRouter);
 
 module.exports = router;
