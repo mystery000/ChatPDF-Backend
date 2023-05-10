@@ -60,7 +60,7 @@ router.get("/get", (req, res) => {
             name: source.name,
         };
     });
-    res.status(200).json({ data: documents });
+    return res.status(200).json({ data: documents });
 });
 
 router.get("/get/:sourceId/messages", async (req, res) => {

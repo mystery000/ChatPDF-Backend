@@ -11,32 +11,42 @@ const options = {
     },
 };
 
-router.post("/message", (req, res) => {
+router.post("/message", async (req, res) => {
     const data = req.body;
+    try {
+        const response = await axios.post(
+            `${config.API_URL}chats/message`,
+            data,
+            options
+        );
 
-    axios
-        .post(`${config.API_URL}chats/message`, data, options)
-        .then((response) => {
-            const clientMsg = {
-                sentAt: new Date(),
-                sentBy: req.user.username,
-                isChatOwner: true,
-                text: data.messages[0].content,
-            };
+        const clientMsg = {
+            sentAt: new Date(),
+            sentBy: req.user.username,
+            isChatOwner: true,
+            text: data.messages[0].content,
+        };
+        const chatPDFMsg = {
+            sentAt: new Date(),
+            sentBy: "PropManager.ai",
+            isChatOwner: false,
+            text: response.data.content,
+        };
 
-            const chatPDFMsg = {
-                sentAt: new Date(),
-                sentBy: "PropManager.ai",
-                isChatOwner: false,
-                text: response.data.content,
-            };
-            // save to db also
+        await User.findOneAndUpdate(
+            { _id: req.user._id, "sources.sourceId": data.sourceId },
+            {
+                $push: {
+                    "sources.$.messages": [clientMsg, chatPDFMsg],
+                },
+            }
+        );
 
-            res.status(200).json({ data: { clientMsg, chatPDFMsg } });
-        })
-        .catch((err) => {
-            res.status(400).json({ data: "Bad Request" });
-        });
+        return res.status(200).json({ data: { chatPDFMsg } });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ data: "Bad Request" });
+    }
 });
 
 module.exports = router;
