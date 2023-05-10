@@ -34,7 +34,11 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const user = { id: req.user._id, email: req.user.email };
+    const user = {
+        id: req.user._id,
+        email: req.user.email,
+        username: req.user.username,
+    };
     const access_token = jwt.sign(user, config.SecretKey, { expiresIn: "2h" });
     return res.status(200).json({
         success: true,

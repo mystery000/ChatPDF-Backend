@@ -54,7 +54,13 @@ router.post("/delete", (req, res) => {
 // Get list of uploaded documents of current user
 router.get("/get", (req, res) => {
     const user = req.user;
-    res.status(200).json({ data: user.sources });
+    const documents = user.sources.map((source) => {
+        return {
+            sourceId: source.sourceId,
+            name: source.name,
+        };
+    });
+    res.status(200).json({ data: documents });
 });
 
 router.get("/get/:sourceId/messages", async (req, res) => {
@@ -68,10 +74,12 @@ router.get("/get/:sourceId/messages", async (req, res) => {
             const messages = userSource.messages;
             res.status(200).json({ data: messages });
         } else {
-            res.status(400).json({ data: "You didn't upload this document" });
+            res.status(400).json({
+                data: `There is no document with ${source_id}`,
+            });
         }
     } catch (error) {
-        res.status(400).json({ data: "Bad Request or failed to retrieve" });
+        res.status(400).json({ data: "Bad Request" });
     }
 });
 
