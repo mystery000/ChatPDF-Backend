@@ -10,6 +10,7 @@ const upload = multer({ dest: "public/files" });
 
 router.post("/add-file", upload.single("file"), (req, res) => {
     const file = req.file;
+    const fileName = req.body.name;
     const formData = new FormData();
     formData.append("file", fs.createReadStream(file.path));
 
@@ -22,9 +23,28 @@ router.post("/add-file", upload.single("file"), (req, res) => {
 
     axios
         .post(`${config.API_URL}sources/add-file`, formData, options)
-        .then((response) => {
+        .then(async (response) => {
+            const sourceId = response.data.sourceId;
+            await User.findOneAndUpdate(
+                { _id: req.user._id },
+                {
+                    $push: {
+                        sources: {
+                            sourceId: sourceId,
+                            name: fileName,
+                            messages: [
+                                {
+                                    text: "Welcome, What can I help you?",
+                                    isChatOwner: false,
+                                    sentBy: "PropManager.ai",
+                                },
+                            ],
+                        },
+                    },
+                }
+            );
             res.status(200).json({
-                data: response.data.sourceId,
+                data: sourceId,
             });
         })
         .catch((err) => {
