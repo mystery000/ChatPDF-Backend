@@ -24,7 +24,15 @@ const UserSchema = new Schema(
         sources: [
             {
                 sourceId: String,
-                name: String,
+                name: { type: String, default: "New Document" },
+                messages: [
+                    {
+                        text: String,
+                        isChatOwner: Boolean,
+                        sentBy: String,
+                        sentAt: { type: Date, default: new Date() },
+                    },
+                ],
             },
         ],
     },

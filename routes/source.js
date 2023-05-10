@@ -57,6 +57,24 @@ router.get("/get", (req, res) => {
     res.status(200).json({ data: user.sources });
 });
 
+router.get("/get/:sourceId/messages", async (req, res) => {
+    try {
+        const source_id = req.params.sourceId;
+        const user = req.user;
+        const userSource = user.sources.find(
+            (source) => source.sourceId === source_id
+        );
+        if (userSource != undefined) {
+            const messages = userSource.messages;
+            res.status(200).json({ data: messages });
+        } else {
+            res.status(400).json({ data: "You didn't upload this document" });
+        }
+    } catch (error) {
+        res.status(400).json({ data: "Bad Request or failed to retrieve" });
+    }
+});
+
 router.put("/update", async (req, res) => {
     const user = req.user;
     const payload = req.body;
