@@ -52,8 +52,12 @@ router.post("/add-file", upload.single("file"), (req, res) => {
         });
 });
 
-router.post("/delete", (req, res) => {
-    const data = req.body;
+router.delete("/:sourceId", (req, res) => {
+    const sourceId = req.params.sourceId;
+    const data = {
+        sources: [sourceId],
+    };
+
     const options = {
         headers: {
             "x-api-key": config.API_SECRET_KEY,
@@ -63,10 +67,19 @@ router.post("/delete", (req, res) => {
 
     axios
         .post(`${config.API_URL}sources/delete`, data, options)
-        .then((response) => {
+        .then(async (response) => {
+            await User.updateOne(
+                { _id: req.user._id, "sources.sourceId": sourceId },
+                {
+                    $pull: {
+                        sources: { sourceId },
+                    },
+                }
+            );
             res.status(200).json({ data: response.data });
         })
         .catch((err) => {
+            console.log(err);
             res.status(400).json({ data: "Bad Request" });
         });
 });

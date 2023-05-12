@@ -39,7 +39,9 @@ exports.login = async (req, res) => {
         email: req.user.email,
         username: req.user.username,
     };
-    const access_token = jwt.sign(user, config.SecretKey, { expiresIn: "2h" });
+    const access_token = jwt.sign(user, config.SecretKey, {
+        expiresIn: 640000,
+    });
     return res.status(200).json({
         success: true,
         user,
