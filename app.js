@@ -19,12 +19,12 @@ app.use(express.json());
 app.use(passport.initialize());
 app.use(express.static(`${__dirname}/public`));
 
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Welcome to ChatPDF server.",
-    });
-});
+// app.get("/", (req, res) => {
+//     res.json({
+//         success: true,
+//         message: "Welcome to ChatPDF server.",
+//     });
+// });
 
 app.use("/api", api);
 
