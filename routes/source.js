@@ -6,7 +6,10 @@ const axios = require("axios");
 const User = require("../models/user");
 const fs = require("fs");
 const FormData = require("form-data");
-const upload = multer({ dest: "public/files" });
+const upload = multer({
+    dest: "public/files",
+    limits: { fileSize: 1000 * 1000 * 500 }, // File Size Limit to 500MB
+});
 
 router.post("/add-file", upload.single("file"), (req, res) => {
     const file = req.file;
@@ -48,6 +51,7 @@ router.post("/add-file", upload.single("file"), (req, res) => {
             });
         })
         .catch((err) => {
+            console.log(err);
             res.status(400).json({ data: "Bad Request" });
         });
 });
