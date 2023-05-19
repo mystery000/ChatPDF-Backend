@@ -1,16 +1,13 @@
 const fs = require('fs');
-const axios = require('axios');
+
 const multer = require('multer');
+const express = require('express');
 const FormData = require('form-data');
 const User = require('../models/user');
-const express = require('express');
-const router = express.Router();
-const { ingest } = require('../scripts/ingest-data');
 
-const upload = multer({
-    dest: 'public/upload',
-    limits: { fileSize: 1000 * 1000 * 500 }, // File Size Limit to 500MB
-});
+const router = express.Router();
+const emptyFolder = require('../utils/emptyFolder');
+const { ingest } = require('../scripts/ingest-data');
 
 // router.post("/add-file", upload.single("file"), (req, res) => {
 //     const file = req.file;
@@ -139,18 +136,29 @@ const upload = multer({
 //         res.status(400).json({ data: "failed to retrieve" });
 //     }
 // });
+const upload_max_count = 30;
+const upload = require('../utils/uploader');
 
-const dirPath = 'public/files/Thomas';
-
-router.post('/upload', async (req, res) => {
-    try {
-        const document_id = await ingest(dirPath);
-        res.json({ document_id: document_id });
-    } catch (err) {
-        res.json({ error: err });
-        console.log('Error: ', err);
-        throw new Error(err.message);
-    }
-});
+router.post(
+    '/upload',
+    upload.array('files', upload_max_count),
+    async (req, res) => {
+        try {
+            const files = req.files;
+            if (files.length) {
+                const documentId = req.body.documentId;
+                // Embedding PDF files into the Pinecone, returns id of pinecone index
+                const indexId = await ingest('public/files', documentId);
+                await emptyFolder('public/files');
+                return res.json({ documentId: indexId });
+            }
+            return res.json({ message: 'No files' });
+        } catch (err) {
+            res.json({ error: err });
+            console.log('Error: ', err);
+            throw new Error(err.message);
+        }
+    },
+);
 
 module.exports = router;

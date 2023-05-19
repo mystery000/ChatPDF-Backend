@@ -8,7 +8,7 @@ const { TextLoader } = require('langchain/document_loaders/fs/text');
 const { initPinecone } = require('../utils/pinecone-client');
 const { PINECONE_INDEX_NAME } = require('../config');
 
-const ingest = async (dir) => {
+const ingest = async (dir, indexId) => {
     try {
         const pinecone = await initPinecone();
         /*load raw docs from the all files in the directory */
@@ -26,14 +26,15 @@ const ingest = async (dir) => {
         });
 
         const docs = await textSplitter.splitDocuments(rawDocs);
-
-        console.log('creating vector store...');
+        console.log('Creating vector store...');
         /*create and store the embeddings in the vectorStore*/
         const embeddings = new OpenAIEmbeddings();
         const index = pinecone.Index(PINECONE_INDEX_NAME); //change to your own index name
 
         //embed the PDF documents
-        const PINECONE_NAME_SPACE = v4();
+
+        const PINECONE_NAME_SPACE = indexId || v4();
+
         await PineconeStore.fromDocuments(docs, embeddings, {
             pineconeIndex: index,
             namespace: PINECONE_NAME_SPACE,
