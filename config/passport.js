@@ -11,6 +11,7 @@ const loginOptions = {
     usernameField: "email",
     passwordField: "password",
 };
+
 const jwtLogin = new localStrategy(
     loginOptions,
     async (email, password, done) => {

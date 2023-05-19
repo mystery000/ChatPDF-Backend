@@ -1,10 +1,15 @@
 const dotenv = require("dotenv");
+
 dotenv.config();
 
 module.exports = {
-    MongoURL: "mongodb://127.0.0.1:27017/chatpdf",
-    SecretKey: "secret",
     port: process.env.PORT,
+    MongoURL: process.env.MONGO_URL,
+    SecretKey: process.env.SECRET_KEY,
     API_URL: process.env.API_URL,
     API_SECRET_KEY: process.env.API_SECRET_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
+    PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME,
 };
