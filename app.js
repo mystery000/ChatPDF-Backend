@@ -1,32 +1,25 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const passport = require("passport");
-const cors = require("cors");
-const config = require("./config");
+const express = require('express');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const cors = require('cors');
+const config = require('./config');
 
 mongoose
     .connect(config.MongoURL)
-    .then(() => console.log("MONGODB connected!"))
+    .then(() => console.log('MONGODB connected!'))
     .catch(console.log);
 
-const api = require("./routes");
+const api = require('./routes');
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: '*' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(passport.initialize());
 app.use(express.static(`${__dirname}/public`));
 
-// app.get("/", (req, res) => {
-//     res.json({
-//         success: true,
-//         message: "Welcome to ChatPDF server.",
-//     });
-// });
-
-app.use("/api", api);
+app.use('/api', api);
 
 // Handle errors.
 app.use(function (err, req, res, next) {
