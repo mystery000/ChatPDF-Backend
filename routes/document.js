@@ -9,51 +9,6 @@ const router = express.Router();
 const emptyFolder = require('../utils/emptyFolder');
 const { ingest } = require('../scripts/ingest-data');
 
-// router.post("/add-file", upload.single("file"), (req, res) => {
-//     const file = req.file;
-//     const fileName = req.body.name;
-//     const formData = new FormData();
-//     formData.append("file", fs.createReadStream(file.path));
-
-//     const options = {
-//         headers: {
-//             "x-api-key": config.API_SECRET_KEY,
-//             ...formData.getHeaders(),
-//         },
-//     };
-
-//     axios
-//         .post(`${config.API_URL}sources/add-file`, formData, options)
-//         .then(async (response) => {
-//             const sourceId = response.data.sourceId;
-//             await User.findOneAndUpdate(
-//                 { _id: req.user._id },
-//                 {
-//                     $push: {
-//                         sources: {
-//                             sourceId: sourceId,
-//                             name: fileName,
-//                             messages: [
-//                                 {
-//                                     text: "Welcome, What can I help you?",
-//                                     isChatOwner: false,
-//                                     sentBy: "PropManager.ai",
-//                                 },
-//                             ],
-//                         },
-//                     },
-//                 }
-//             );
-//             res.status(200).json({
-//                 data: sourceId,
-//             });
-//         })
-//         .catch((err) => {
-//             console.log(err);
-//             res.status(400).json({ data: "Bad Request" });
-//         });
-// });
-
 // router.delete("/:sourceId", (req, res) => {
 //     const sourceId = req.params.sourceId;
 //     const data = {
@@ -145,18 +100,49 @@ router.post(
     async (req, res) => {
         try {
             const files = req.files;
+            const sourceId = req.body.sourceId;
+            const documentName = req.body.documentName || 'Untitled';
             if (files.length) {
-                const documentId = req.body.documentId;
                 // Embedding PDF files into the Pinecone, returns id of pinecone index
-                const indexId = await ingest('public/files', documentId);
+                const indexId = await ingest('public/files', sourceId);
+                const documents = files.map((file) => file.filename);
                 await emptyFolder('public/files');
+                if (sourceId) {
+                    await User.findOneAndUpdate(
+                        { _id: req.user._id, 'sources.sourceId': sourceId },
+                        {
+                            $push: {
+                                'sources.$.documents': [...documents],
+                            },
+                        },
+                    );
+                } else {
+                    await User.findOneAndUpdate(
+                        { _id: req.user._id },
+                        {
+                            $push: {
+                                sources: {
+                                    name: documentName,
+                                    sourceId: indexId,
+                                    documents: [...documents],
+                                    messages: [
+                                        {
+                                            text: 'Welcome, What can I help you?',
+                                            isChatOwner: false,
+                                            sentBy: 'PropManager.ai',
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    );
+                }
                 return res.json({ documentId: indexId });
             }
             return res.json({ message: 'No files' });
         } catch (err) {
-            res.json({ error: err });
             console.log('Error: ', err);
-            throw new Error(err.message);
+            res.json({ error: err });
         }
     },
 );
