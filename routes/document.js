@@ -11,56 +11,6 @@ const { ingest } = require('../scripts/ingest-data');
 const { initPinecone } = require('../utils/pinecone-client');
 const { PINECONE_INDEX_NAME } = require('../config');
 
-// // Get list of uploaded documents of current user
-// router.get("/get", (req, res) => {
-//     const user = req.user;
-//     const documents = user.sources.map((source) => {
-//         return {
-//             sourceId: source.sourceId,
-//             name: source.name,
-//         };
-//     });
-//     return res.status(200).json({ data: documents });
-// });
-
-// router.get("/get/:sourceId/messages", async (req, res) => {
-//     try {
-//         const source_id = req.params.sourceId;
-//         const user = req.user;
-//         const userSource = user.sources.find(
-//             (source) => source.sourceId === source_id
-//         );
-//         if (userSource != undefined) {
-//             const messages = userSource.messages;
-//             res.status(200).json({ data: messages });
-//         } else {
-//             res.status(400).json({
-//                 data: `There is no document with ${source_id}`,
-//             });
-//         }
-//     } catch (error) {
-//         res.status(400).json({ data: "Bad Request" });
-//     }
-// });
-
-// router.put("/update", async (req, res) => {
-//     const user = req.user;
-//     const payload = req.body;
-
-//     try {
-//         await User.updateOne(
-//             { _id: user._id, "sources.sourceId": payload.sourceId },
-//             {
-//                 $set: {
-//                     "sources.$.name": payload.name,
-//                 },
-//             }
-//         );
-//         res.status(200).json({ data: "udpated" });
-//     } catch (error) {
-//         res.status(400).json({ data: "failed to retrieve" });
-//     }
-// });
 const upload_max_count = 30;
 const upload = require('../utils/uploader');
 
@@ -160,6 +110,100 @@ router.delete('/:sourceId', async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.json({ error: err });
+    }
+});
+
+/*
+    GET http://localhost:5000/apis/documents/:sourceId/messages HTTP/1.1
+
+    Authorization: Bearer
+
+    Get messages from specific source
+    Return Type: Array
+*/
+
+router.get('/:sourceId/messages', async (req, res) => {
+    try {
+        const sourceId = req.params.sourceId;
+        const data = await User.findOne(
+            {
+                _id: req.user._id,
+                'sources.sourceId': sourceId,
+            },
+            'sources.messages.$',
+        );
+        const messages = data.sources[0].messages;
+        return res.json(messages);
+    } catch (error) {
+        console.log(error);
+        return res.json(error);
+    }
+});
+
+/*
+    POST http://localhost:5000/apis/documents/:sourceId/chat HTTP/1.1
+
+    Content-Type: application/json
+    Authorization: Bearer
+
+*/
+
+router.post('/:sourceId/chat', async (req, res) => {});
+
+/*
+    GET http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+
+    Authorization: Bearer
+
+    Get all uploaded documents in specific source
+    Return Type: Array
+*/
+
+router.get('/:sourceId', async (req, res) => {
+    const sourceId = req.params.sourceId;
+    try {
+        const data = await User.findOne(
+            {
+                _id: req.user._id,
+                'sources.sourceId': sourceId,
+            },
+            'sources.documents.$',
+        );
+        const documents = data.sources[0].documents;
+        return res.json(documents);
+    } catch (error) {
+        console.log(error);
+        return res.json({ error: 'failed to query mongodb' });
+    }
+});
+
+/*
+    PUT http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+
+    Authorization: Bearer
+
+    Rename document with specific id
+
+    {
+        name: 'new document name'
+    }
+*/
+
+router.put('/:sourceId', async (req, res) => {
+    const name = req.body.name;
+    const sourceId = req.params.sourceId;
+    try {
+        await User.updateOne(
+            { _id: req.user._id, 'sources.sourceId': sourceId },
+            {
+                $set: {
+                    'sources.$.name': name,
+                },
+            },
+        );
+        res.json({ success: 'Renamed successfully!' });
+    } catch (error) {
+        return res.json({ error: 'failed to rename document' });
     }
 });
 
