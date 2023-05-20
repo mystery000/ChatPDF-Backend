@@ -7,9 +7,13 @@ const User = require('../models/user');
 
 const router = express.Router();
 const emptyFolder = require('../utils/emptyFolder');
+
 const { ingest } = require('../scripts/ingest-data');
 const { initPinecone } = require('../utils/pinecone-client');
 const { PINECONE_INDEX_NAME } = require('../config');
+const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { PineconeStore } = require('langchain/vectorstores/pinecone');
+const { makeChain } = require('../utils/makechain');
 
 const upload_max_count = 30;
 const upload = require('../utils/uploader');
@@ -148,7 +152,65 @@ router.get('/:sourceId/messages', async (req, res) => {
 
 */
 
-router.post('/:sourceId/chat', async (req, res) => {});
+router.post('/:sourceId/chat', async (req, res) => {
+    const sourceId = req.params.sourceId;
+    const { question } = req.body;
+
+    // OpenAI recommends replacing newlines with spaces for best results
+    const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
+
+    try {
+        const pinecone = await initPinecone();
+        const index = pinecone.Index(PINECONE_INDEX_NAME);
+
+        /* create vectorstore*/
+        const vectorStore = await PineconeStore.fromExistingIndex(
+            new OpenAIEmbeddings(),
+            {
+                pineconeIndex: index,
+                textKey: 'text',
+                namespace: sourceId, //namespace comes from request parameters
+            },
+        );
+
+        //create chain
+        const chain = makeChain(vectorStore);
+
+        //Ask a question using chat history
+        const response = await chain.call({
+            question: sanitizedQuestion,
+            chat_history: [],
+        });
+
+        const { text } = response;
+
+        const msgUser = {
+            sentAt: new Date(),
+            sentBy: req.user.username,
+            isChatOwner: true,
+            text: question,
+        };
+        const msgLangchain = {
+            sentAt: new Date(),
+            sentBy: 'PropManager.ai',
+            isChatOwner: false,
+            text: text,
+        };
+
+        await User.findOneAndUpdate(
+            { _id: req.user._id, 'sources.sourceId': sourceId },
+            {
+                $push: {
+                    'sources.$.messages': [msgUser, msgLangchain],
+                },
+            },
+        );
+        return res.status(200).json(response.text);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: 'Something went wrong' });
+    }
+});
 
 /*
     GET http://localhost:5000/apis/documents/:sourceId HTTP/1.1
