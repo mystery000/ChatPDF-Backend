@@ -1,20 +1,13 @@
-const fs = require('fs');
-
-const multer = require('multer');
 const express = require('express');
-const FormData = require('form-data');
 const User = require('../models/user');
-
 const router = express.Router();
 const emptyFolder = require('../utils/emptyFolder');
-
 const { ingest } = require('../scripts/ingest-data');
 const { initPinecone } = require('../utils/pinecone-client');
 const { PINECONE_INDEX_NAME } = require('../config');
 const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
 const { PineconeStore } = require('langchain/vectorstores/pinecone');
 const { makeChain } = require('../utils/makechain');
-
 const upload_max_count = 30;
 const upload = require('../utils/uploader');
 
