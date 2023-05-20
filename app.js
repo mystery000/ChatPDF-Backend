@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(passport.initialize());
 app.use(express.static(`${__dirname}/public`));
 
-app.use('/api', api);
+app.use('/apis', api);
 
 // Handle errors.
 app.use(function (err, req, res, next) {

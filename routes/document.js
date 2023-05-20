@@ -8,38 +8,8 @@ const User = require('../models/user');
 const router = express.Router();
 const emptyFolder = require('../utils/emptyFolder');
 const { ingest } = require('../scripts/ingest-data');
-
-// router.delete("/:sourceId", (req, res) => {
-//     const sourceId = req.params.sourceId;
-//     const data = {
-//         sources: [sourceId],
-//     };
-
-//     const options = {
-//         headers: {
-//             "x-api-key": config.API_SECRET_KEY,
-//             "Content-Type": "application/json",
-//         },
-//     };
-
-//     axios
-//         .post(`${config.API_URL}sources/delete`, data, options)
-//         .then(async (response) => {
-//             await User.updateOne(
-//                 { _id: req.user._id, "sources.sourceId": sourceId },
-//                 {
-//                     $pull: {
-//                         sources: { sourceId },
-//                     },
-//                 }
-//             );
-//             res.status(200).json({ data: response.data });
-//         })
-//         .catch((err) => {
-//             console.log(err);
-//             res.status(400).json({ data: "Bad Request" });
-//         });
-// });
+const { initPinecone } = require('../utils/pinecone-client');
+const { PINECONE_INDEX_NAME } = require('../config');
 
 // // Get list of uploaded documents of current user
 // router.get("/get", (req, res) => {
@@ -94,6 +64,20 @@ const { ingest } = require('../scripts/ingest-data');
 const upload_max_count = 30;
 const upload = require('../utils/uploader');
 
+/*
+    POST http://localhost:5000/apis/documents/upload HTTP/1.1
+
+    content-type: multipart/form-data
+    Authorization: Bearer
+
+    {
+        "sourceId": "5f9f5a24-b63b-4c72-8834-dda001630830",
+        "documentName": "password",
+        "files": []
+    }
+
+    return: sourceId(pinecone Index Namespace)
+*/
 router.post(
     '/upload',
     upload.array('files', upload_max_count),
@@ -137,7 +121,7 @@ router.post(
                         },
                     );
                 }
-                return res.json({ documentId: indexId });
+                return res.json({ sourceId: indexId });
             }
             return res.json({ message: 'No files' });
         } catch (err) {
@@ -146,5 +130,37 @@ router.post(
         }
     },
 );
+
+/*
+    DELETE http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+
+    Authorization: Bearer
+
+    sourceId: String
+
+*/
+
+router.delete('/:sourceId', async (req, res) => {
+    const sourceId = req.params.sourceId;
+    console.log(sourceId);
+    try {
+        const pinecone = await initPinecone();
+        const index = pinecone.Index(PINECONE_INDEX_NAME);
+        await index.delete1({ deleteAll: true, namespace: sourceId });
+        await User.updateOne(
+            { _id: req.user._id, 'sources.sourceId': sourceId },
+            {
+                $pull: {
+                    sources: { sourceId },
+                },
+            },
+        );
+
+        return res.json({ message: 'Deleted Successfully' });
+    } catch (err) {
+        console.log(err);
+        return res.json({ error: err });
+    }
+});
 
 module.exports = router;
