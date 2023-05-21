@@ -129,7 +129,7 @@ router.get('/:sourceId/messages', async (req, res) => {
             'sources.messages.$',
         );
         const messages = data.sources[0].messages;
-        return res.json(messages);
+        return res.json({ messages });
     } catch (error) {
         console.log(error);
         return res.json(error);
@@ -197,7 +197,7 @@ router.post('/:sourceId/chat', async (req, res) => {
                 },
             },
         );
-        return res.status(200).json(response.text);
+        return res.status(200).json({ msgLangchain });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: 'Something went wrong' });
