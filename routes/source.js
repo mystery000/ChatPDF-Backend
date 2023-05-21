@@ -12,14 +12,14 @@ const upload_max_count = 30;
 const upload = require('../utils/uploader');
 
 /*
-    POST http://localhost:5000/apis/documents/upload HTTP/1.1
+    POST http://localhost:5000/apis/sources/upload HTTP/1.1
 
     content-type: multipart/form-data
     Authorization: Bearer
 
     {
         "sourceId": "5f9f5a24-b63b-4c72-8834-dda001630830",
-        "documentName": "password",
+        "sourceName": "source name",
         "files": []
     }
 
@@ -32,7 +32,7 @@ router.post(
         try {
             const files = req.files;
             const sourceId = req.body.sourceId;
-            const documentName = req.body.documentName || 'Untitled';
+            const sourceName = req.body.sourceName || 'Untitled';
             if (files.length) {
                 // Embedding PDF files into the Pinecone, returns id of pinecone index
                 const indexId = await ingest('public/files', sourceId);
@@ -53,7 +53,7 @@ router.post(
                         {
                             $push: {
                                 sources: {
-                                    name: documentName,
+                                    name: sourceName,
                                     sourceId: indexId,
                                     documents: [...documents],
                                     messages: [
@@ -79,7 +79,7 @@ router.post(
 );
 
 /*
-    DELETE http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+    DELETE http://localhost:5000/apis/sources/:sourceId HTTP/1.1
 
     Authorization: Bearer
 
@@ -89,7 +89,6 @@ router.post(
 
 router.delete('/:sourceId', async (req, res) => {
     const sourceId = req.params.sourceId;
-    console.log(sourceId);
     try {
         const pinecone = await initPinecone();
         const index = pinecone.Index(PINECONE_INDEX_NAME);
@@ -111,7 +110,7 @@ router.delete('/:sourceId', async (req, res) => {
 });
 
 /*
-    GET http://localhost:5000/apis/documents/:sourceId/messages HTTP/1.1
+    GET http://localhost:5000/apis/sources/:sourceId/messages HTTP/1.1
 
     Authorization: Bearer
 
@@ -138,7 +137,7 @@ router.get('/:sourceId/messages', async (req, res) => {
 });
 
 /*
-    POST http://localhost:5000/apis/documents/:sourceId/chat HTTP/1.1
+    POST http://localhost:5000/apis/sources/:sourceId/chat HTTP/1.1
 
     Content-Type: application/json
     Authorization: Bearer
@@ -206,7 +205,7 @@ router.post('/:sourceId/chat', async (req, res) => {
 });
 
 /*
-    GET http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+    GET http://localhost:5000/apis/sources/:sourceId HTTP/1.1
 
     Authorization: Bearer
 
@@ -232,7 +231,7 @@ router.get('/:sourceId', async (req, res) => {
     }
 });
 /*
-    GET http://localhost:5000/apis/documents HTTP/1.1
+    GET http://localhost:5000/apis/sources HTTP/1.1
 
     Authorization: Bearer
 
@@ -255,7 +254,7 @@ router.get('/', (req, res) => {
 });
 
 /*
-    PUT http://localhost:5000/apis/documents/:sourceId HTTP/1.1
+    PUT http://localhost:5000/apis/sources/:sourceId HTTP/1.1
 
     Authorization: Bearer
 
