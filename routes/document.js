@@ -231,6 +231,28 @@ router.get('/:sourceId', async (req, res) => {
         return res.json({ error: 'failed to query mongodb' });
     }
 });
+/*
+    GET http://localhost:5000/apis/documents HTTP/1.1
+
+    Authorization: Bearer
+
+    Get all sources of logged user
+    
+    Return Type:
+    sources: [
+        {
+            name,
+            sourceId,
+            documents: [],
+            messages: []
+        }
+    ]
+*/
+
+router.get('/', (req, res) => {
+    const sources = req.user.sources;
+    res.json({ sources });
+});
 
 /*
     PUT http://localhost:5000/apis/documents/:sourceId HTTP/1.1
