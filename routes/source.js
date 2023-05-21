@@ -224,7 +224,7 @@ router.get('/:sourceId', async (req, res) => {
             'sources.documents.$',
         );
         const documents = data.sources[0].documents;
-        return res.json(documents);
+        return res.json({ documents });
     } catch (error) {
         console.log(error);
         return res.json({ error: 'failed to query mongodb' });
