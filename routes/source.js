@@ -8,7 +8,7 @@ const { PINECONE_INDEX_NAME } = require('../config');
 const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
 const { PineconeStore } = require('langchain/vectorstores/pinecone');
 const { makeChain } = require('../utils/makechain');
-const upload_max_count = 30;
+const upload_max_count = 10;
 const upload = require('../utils/uploader');
 
 /*
