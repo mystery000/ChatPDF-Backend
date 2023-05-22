@@ -8,10 +8,12 @@ Follow Up Input: {question}
 Standalone question:`;
 
 const QA_PROMPT = `You are chatbot to provide useful information with given the following context. 
-You have to generate the human-like response to any question that users ask.  Please use formatting like ChatGPT of openAI when you answer.
+You have to generate the human-like response to any question that users ask.
+Please use table if necessary.
+Please use formatting like article if responses is long.
 If you can't find the answer in the context below, just say "Hmm, I'm not sure".
 If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
-Answer in a concise or elaborate format as per the intent of the question.
+Answer in a concise or elaborate format as per the intent of the question..
 
 
 ====================
@@ -23,7 +25,7 @@ Answer: `;
 const makeChain = (vectorstore) => {
     const model = new OpenAI({
         temperature: 0.1, // increase temepreature to get more creative answers
-        modelName: 'gpt-4', //change this to gpt-4 if you have access
+        modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
     });
 
     const chain = ConversationalRetrievalQAChain.fromLLM(
