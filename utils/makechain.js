@@ -1,6 +1,5 @@
 const { OpenAI } = require('langchain/llms/openai');
 const { ConversationalRetrievalQAChain } = require('langchain/chains');
-
 const CONDENSE_PROMPT = `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
 Chat History:
@@ -8,17 +7,23 @@ Chat History:
 Follow Up Input: {question}
 Standalone question:`;
 
-const QA_PROMPT = `Act as a helpful PDF file. Given the following content as information source, answer any questions the user asks.
-Return the result in a user-friendly format.
+const QA_PROMPT = `You are chatbot to provide useful information with given the following context. 
+You have to generate the human-like response to any question that users ask.  Please use formatting like ChatGPT of openAI when you answer.
+If you can't find the answer in the context below, just say "Hmm, I'm not sure".
+If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+Answer in a concise or elaborate format as per the intent of the question.
 
+
+====================
 {context}
-
-Question: {question}`;
+====================
+Question: {question}
+Answer: `;
 
 const makeChain = (vectorstore) => {
     const model = new OpenAI({
         temperature: 0.1, // increase temepreature to get more creative answers
-        modelName: 'gpt-3.5-turbo', //change this to gpt-4 if you have access
+        modelName: 'gpt-4', //change this to gpt-4 if you have access
     });
 
     const chain = ConversationalRetrievalQAChain.fromLLM(
