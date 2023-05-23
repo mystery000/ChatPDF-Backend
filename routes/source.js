@@ -23,7 +23,8 @@ const upload = require('../utils/uploader');
         "files": []
     }
 
-    return: sourceId(pinecone Index Namespace)
+    return: sourceId(pinecone Index Namespace) when add a soucre
+    return documents when append documents to the source
 */
 router.post(
     '/upload',
@@ -47,6 +48,7 @@ router.post(
                             },
                         },
                     );
+                    return res.json({ documents: documents });
                 } else {
                     await User.findOneAndUpdate(
                         { _id: req.user._id },
@@ -67,8 +69,8 @@ router.post(
                             },
                         },
                     );
+                    return res.json({ sourceId: indexId });
                 }
-                return res.json({ sourceId: indexId });
             }
             return res.json({ message: 'No files' });
         } catch (err) {
