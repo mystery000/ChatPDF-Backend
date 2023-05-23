@@ -170,10 +170,21 @@ router.post('/:sourceId/chat', async (req, res) => {
         //create chain
         const chain = makeChain(vectorStore);
 
+        const data = await User.findOne(
+            {
+                _id: req.user._id,
+                'sources.sourceId': sourceId,
+            },
+            'sources.messages.$',
+        );
+        const messages = data.sources[0].messages;
+        chat_history = messages.map((message) => message.text);
+        chat_history.push(sanitizedQuestion);
+
         //Ask a question using chat history
         const response = await chain.call({
             question: sanitizedQuestion,
-            chat_history: [],
+            chat_history: [] || chat_history,
         });
 
         const { text } = response;
