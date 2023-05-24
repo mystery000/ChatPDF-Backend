@@ -21,7 +21,7 @@ const ingest = async (dir, indexId) => {
 
         /* Split text into chunks */
         const textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 800,
+            chunkSize: 600,
             chunkOverlap: 200,
         });
 
