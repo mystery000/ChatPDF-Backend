@@ -112,6 +112,32 @@ router.delete('/:sourceId', async (req, res) => {
 });
 
 /*
+    DELETE http://localhost:5000/apis/sources/:sourceId/messages HTTP/1.1
+
+    Authorization: Bearer
+
+    sourceId: String
+
+    Remove all messages from source with specifc sourceId
+*/
+router.delete('/:sourceId/messages', async (req, res) => {
+    const sourceId = req.params.sourceId;
+    try {
+        await User.updateOne(
+            { _id: req.user._id, 'sources.sourceId': sourceId },
+            {
+                $set: {
+                    'sources.$.messages': [],
+                },
+            },
+        );
+        res.json({ success: 'Cleared successfully!' });
+    } catch (err) {
+        console.log(err);
+        return res.json({ error: err });
+    }
+});
+/*
     GET http://localhost:5000/apis/sources/:sourceId/messages HTTP/1.1
 
     Authorization: Bearer
