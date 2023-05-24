@@ -213,8 +213,7 @@ router.post('/:sourceId/chat', async (req, res) => {
             chat_history: [] || chat_history,
         });
 
-        const { text } = response;
-
+        const { text, sourceDocuments } = response;
         const msgUser = {
             sentAt: new Date(),
             sentBy: req.user.username,
@@ -226,6 +225,7 @@ router.post('/:sourceId/chat', async (req, res) => {
             sentBy: 'PropManager.ai',
             isChatOwner: false,
             text: text,
+            sourceDocuments: sourceDocuments,
         };
 
         await User.findOneAndUpdate(

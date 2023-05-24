@@ -9,6 +9,8 @@ Follow Up Input: {question}
 Standalone question:`;
 
 const QA_PROMPT = `Act as a helpful PDF file. Given the following pages of the PDF as information source, answer any questions the user asks. If the given pages contain the answer, generate a concise answer from these pages of the PDF as information source. Otherwise, mention that the source does not contain relevant information, but still answer the question to the best of your knowledge. Act as if you are the PDF file and chat with the human, imitate the linguistic style of the PDF.
+You must provide as much detail as possible based on your knowledge and the following context.
+When a user sends a greeting, he should respond as if he were an old friend.
 
 Context: {context}
 

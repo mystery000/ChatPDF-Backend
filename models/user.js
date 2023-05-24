@@ -27,6 +27,7 @@ const UserSchema = new Schema(
             default: 'user',
             required: true,
         },
+
         sources: [
             {
                 name: String,
@@ -38,6 +39,12 @@ const UserSchema = new Schema(
                         isChatOwner: Boolean,
                         sentBy: String,
                         sentAt: { type: Date, default: new Date() },
+                        sourceDocuments: [
+                            {
+                                pageContent: String,
+                                metadata: Object,
+                            },
+                        ],
                     },
                 ],
             },
