@@ -4,12 +4,6 @@ const upload = require('../utils/uploader');
 const upload_max_count = 10;
 const sourceController = require('../controllers/source');
 
-router.get('/', (req, res) => {
-    res.json({
-        message: 'This is source API interface',
-    });
-});
-
 router.post(
     '/upload',
     upload.array('files', upload_max_count),
