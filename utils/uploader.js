@@ -1,10 +1,14 @@
+const fs = require('fs');
 const multer = require('multer');
 
 const uploader = {
     storage: function () {
         const storage = multer.diskStorage({
             destination: function (req, file, callback) {
-                callback(null, 'public/files');
+                const { email } = req.user;
+                const dir = `public/files/${email}`;
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+                callback(null, dir);
             },
             filename: function (req, file, callback) {
                 callback(null, file.originalname);
@@ -26,4 +30,5 @@ const upload = multer({
     storage: uploader.storage(),
     fileFilter: uploader.fileFilter,
 });
+
 module.exports = upload;

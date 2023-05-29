@@ -6,8 +6,6 @@ module.exports = {
     port: process.env.PORT,
     MongoURL: process.env.MONGO_URL,
     SecretKey: process.env.SECRET_KEY,
-    API_URL: process.env.API_URL,
-    API_SECRET_KEY: process.env.API_SECRET_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     PINECONE_API_KEY: process.env.PINECONE_API_KEY,
     PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,

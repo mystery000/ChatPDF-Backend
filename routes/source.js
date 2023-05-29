@@ -16,10 +16,10 @@ router.post(
     sourceController.uploadfiles,
 );
 router.get('/', sourceController.getSources);
-router.put('/:sourceId', sourceController.renameSource);
 router.get('/:sourceId', sourceController.getDocumentsFromSource);
-router.post('/:sourceId/chat', sourceController.chat);
 router.get('/:sourceId/messages', sourceController.getMessagesFromSource);
+router.put('/:sourceId', sourceController.renameSource);
+router.post('/:sourceId/chat', sourceController.chat);
 router.delete('/:sourceId/messages', sourceController.deleteAllMessage);
 router.delete('/:sourceId', sourceController.deleteSource);
 

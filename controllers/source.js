@@ -28,11 +28,14 @@ exports.uploadfiles = async (req, res) => {
         const files = req.files;
         const sourceId = req.body.sourceId;
         const sourceName = req.body.sourceName || 'Untitled';
+        const { email } = req.user;
+
         if (files.length) {
             // Embedding PDF files into the Pinecone, returns id of pinecone index
-            const indexId = await ingest('public/files', sourceId);
+            const dir = `public/files/${email}`;
+            const indexId = await ingest(dir, sourceId);
             const documents = files.map((file) => file.filename);
-            await emptyFolder('public/files');
+            await emptyFolder(dir);
             if (sourceId) {
                 await User.findOneAndUpdate(
                     { _id: req.user._id, 'sources.sourceId': sourceId },
