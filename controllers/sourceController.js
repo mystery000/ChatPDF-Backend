@@ -23,7 +23,7 @@ const { makeChain } = require('../utils/makechain');
     return documents when append documents to the source
 */
 
-exports.uploadfiles = async (req, res) => {
+const uploadfiles = async (req, res) => {
     try {
         const files = req.files;
         const sourceId = req.body.sourceId;
@@ -84,7 +84,7 @@ exports.uploadfiles = async (req, res) => {
 
 */
 
-exports.deleteSource = async (req, res) => {
+const deleteSource = async (req, res) => {
     const sourceId = req.params.sourceId;
     try {
         const pinecone = await initPinecone();
@@ -115,7 +115,7 @@ exports.deleteSource = async (req, res) => {
     Remove all messages from source with specifc sourceId
 */
 
-exports.deleteAllMessage = async (req, res) => {
+const deleteAllMessage = async (req, res) => {
     const sourceId = req.params.sourceId;
     try {
         await User.updateOne(
@@ -141,7 +141,7 @@ exports.deleteAllMessage = async (req, res) => {
     Return Type: Array
 */
 
-exports.getMessagesFromSource = async (req, res) => {
+const getMessagesFromSource = async (req, res) => {
     try {
         const sourceId = req.params.sourceId;
         const data = await User.findOne(
@@ -166,7 +166,7 @@ exports.getMessagesFromSource = async (req, res) => {
 
 */
 
-exports.chat = async (req, res) => {
+const chat = async (req, res) => {
     const sourceId = req.params.sourceId;
     const { question } = req.body;
 
@@ -245,7 +245,7 @@ exports.chat = async (req, res) => {
     Return Type: Array
 */
 
-exports.getDocumentsFromSource = async (req, res) => {
+const getDocumentsFromSource = async (req, res) => {
     const sourceId = req.params.sourceId;
     try {
         const data = await User.findOne(
@@ -280,7 +280,7 @@ exports.getDocumentsFromSource = async (req, res) => {
     ]
 */
 
-exports.getSources = (req, res) => {
+const getSources = (req, res) => {
     const sources = req.user.sources;
     res.json({ sources });
 };
@@ -297,7 +297,7 @@ exports.getSources = (req, res) => {
     }
 */
 
-exports.renameSource = async (req, res) => {
+const renameSource = async (req, res) => {
     const name = req.body.name;
     const sourceId = req.params.sourceId;
     try {
@@ -313,4 +313,15 @@ exports.renameSource = async (req, res) => {
     } catch (error) {
         return res.json({ error: 'failed to rename document' });
     }
+};
+
+module.exports = {
+    uploadfiles,
+    deleteSource,
+    deleteAllMessage,
+    getMessagesFromSource,
+    chat,
+    getDocumentsFromSource,
+    getSources,
+    renameSource,
 };

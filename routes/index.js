@@ -4,16 +4,17 @@ require('../config/passport');
 const router = express.Router();
 
 const authRouter = require('./auth');
-const sourceRouter = require('./source');
 const userRouter = require('./user');
+const sourceRouter = require('./sourceRoutes');
 
 const authMiddleware = require('../middlewares/auth');
 
 const { jwtAuth } = authMiddleware;
 
 router.get('/', (req, res) => {
-    res.json({
-        message: 'This is API interface',
+    res.status(200).json({
+        status: 'OK',
+        data: 'This is Landlord API Interface',
     });
 });
 
